@@ -20,7 +20,7 @@ pygame.display.set_caption('Level Editor')
 ROWS = 16
 MAX_COLS = 150
 TILE_SIZE = SCREEN_HEIGHT // ROWS
-TILE_TYPES = 21
+TILE_TYPES = 6
 level = 0
 current_tile = 0
 scroll_left = False
@@ -36,7 +36,7 @@ sky_img = pygame.image.load('../LevelEditor-main/LevelEditor-main/img/Background
 
 img_list = []
 for x in range(TILE_TYPES):
-	img = pygame.image.load(f'img/tile/{x}.png').convert_alpha()
+	img = pygame.image.load(f'images/tile/{x}.png').convert_alpha()
 	img = pygame.transform.scale(img, (TILE_SIZE, TILE_SIZE))
 	img_list.append(img)
 
@@ -113,17 +113,17 @@ while run:
 	draw_grid()
 	draw_world()
 
-	draw_text(f'Level: {level}', font, WHITE, 10, SCREEN_HEIGHT + LOWER_MARGIN - 90)
+	draw_text(f'Level: 1', font, WHITE, 10, SCREEN_HEIGHT + LOWER_MARGIN - 90)
 	draw_text('Press UP or DOWN to change level', font, WHITE, 10, SCREEN_HEIGHT + LOWER_MARGIN - 60)
 
 	if save_button.draw(screen):
-		with open(f'level{level}_data.csv', 'w', newline='') as csvfile:
+		with open(f'level_data.csv', 'w', newline='') as csvfile:
 			writer = csv.writer(csvfile, delimiter = ',')
 			for row in world_data:
 				writer.writerow(row)
 	if load_button.draw(screen):
 		scroll = 0
-		with open(f'level{level}_data.csv', newline='') as csvfile:
+		with open(f'level_data.csv', newline='') as csvfile:
 			reader = csv.reader(csvfile, delimiter = ',')
 			for x, row in enumerate(reader):
 				for y, tile in enumerate(row):

@@ -1,5 +1,4 @@
 import pygame
-import os
 import csv
 pygame.init()
 info = pygame.display.Info()
@@ -28,14 +27,14 @@ moving_left = False
 moving_right = False
 shoot = False
 
-img_list = []
-for x in range(TILE_TYPES):
-    img = pygame.image.load(f'images/tile/{x}.png')
-    img = pygame.transform.scale(img, (TILE_SIZE, TILE_SIZE))
-    img_list.append(img)
+# img_list = []
+# for x in range(TILE_TYPES):
+#     img = pygame.image.load(f'images/tile/{x}.png')
+#     img = pygame.transform.scale(img, (TILE_SIZE, TILE_SIZE))
+#     img_list.append(img)
 
-rock_img = pygame.image.load('images/rock.png').convert_alpha()
-item_img = pygame.image.load('images/rocks/item.png').convert_alpha()
+rock_img = pygame.image.load('images/rock/rock.png').convert_alpha()
+item_img = pygame.image.load('images/items/item.png').convert_alpha()
 bg = (125, 199, 172)
 red = (255, 0, 0)
 
@@ -49,7 +48,6 @@ def draw_text(text, font, text_color, x, y):
 
 def draw_bg():
     virtual_surface.fill(bg)
-    pygame.draw.line(virtual_surface, red, (0, 700), (WIDTH, 700))
 
 
 class Player(pygame.sprite.Sprite):
@@ -74,18 +72,17 @@ class Player(pygame.sprite.Sprite):
         self.frame_index = 0
         self.update_time = pygame.time.get_ticks()
         self.move_counter = 0
-        for i in range(6):
-            img = pygame.image.load(f'images/{self.char_type}/stand/{i}.png').convert_alpha()
-            img = pygame.transform.scale(img, (img.get_width(), img.get_height()))
-            self.animation_list.append(img)
-        self.image = self.animation_list[self.frame_index]
+        self.image = pygame.image.load(f'images/{self.char_type}/Idle/0.png').convert_alpha()
+        # img = pygame.transform.scale(img, (img.get_width(), img.get_height()))
+        # self.animation_list.append(img)
+        # self.image = self.animation_list[self.frame_index]
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.width = self.image.get_width()
         self.height = self.image.get_height()
 
     def update(self):
-        self.update_animation()
+        # self.update_animation()
         self.check_alive()
         if self.shoot_cooldown > 0:
             self.shoot_cooldown -= 1
@@ -139,9 +136,9 @@ class Player(pygame.sprite.Sprite):
                     dy = ground_block.rect.top - self.rect.bottom
                     self.in_air = False
 
-        if self.rect.bottom + dy > 700:
-            dy = 700 - self.rect.bottom
-            self.in_air = False
+        # if self.rect.bottom + dy > 700:
+        #     dy = 700 - self.rect.bottom
+        #     self.in_air = False
 
         self.rect.x += dx
         self.rect.y += dy
@@ -191,35 +188,35 @@ class Player(pygame.sprite.Sprite):
                 self.move_counter *= -1
 
 
-class World():
-    def __init__(self):
-        self.obstacle_list = []
-
-    def process_data(self, data):
-        for y, row in enumerate(data):
-            for x, tile in enumerate(row):
-                if tile >= 0:
-                    img = img_list[tile]
-                    img_rect = img.get_rect()
-                    img_rect.x = x * TILE_SIZE
-                    img_rect.y = y * TILE_SIZE
-                    tile_data = (img, img_rect)
-                    if tile >= 2 and tile <= 3:
-                        self.obstacle_list.append(tile_data)
-                    elif tile == 0:
-                        angel = Player('angel', x * TILE_SIZE, y * TILE_SIZE, 7, 7, 3)
-                    elif tile == 1:
-                        rat = Player('rat', x * TILE_SIZE, y * TILE_SIZE, 7, 0, 1)
-                        rat_group.add(rat)
-                    elif tile == 5:
-                        item = Item(x * TILE_SIZE, y * TILE_SIZE)
-                        item_group.add(item)
-
-        return angel
-
-    def draw(self):
-        for tile in self.obstacle_list:
-            virtual_surface.blit(tile[0], tile[1])
+# class World():
+#     def __init__(self):
+#         self.obstacle_list = []
+#
+#     def process_data(self, data):
+#         for y, row in enumerate(data):
+#             for x, tile in enumerate(row):
+#                 if tile >= 0:
+#                     img = img_list[tile]
+#                     img_rect = img.get_rect()
+#                     img_rect.x = x * TILE_SIZE
+#                     img_rect.y = y * TILE_SIZE
+#                     tile_data = (img, img_rect)
+#                     if tile >= 2 and tile <= 3:
+#                         self.obstacle_list.append(tile_data)
+#                     elif tile == 0:
+#                         angel = Player('angel', x * TILE_SIZE, y * TILE_SIZE, 7, 7, 3)
+#                     elif tile == 1:
+#                         rat = Player('rat', x * TILE_SIZE, y * TILE_SIZE, 7, 0, 1)
+#                         rat_group.add(rat)
+#                     elif tile == 5:
+#                         item = Item(x * TILE_SIZE, y * TILE_SIZE)
+#                         item_group.add(item)
+#
+#         return angel
+#
+#     def draw(self):
+#         for tile in self.obstacle_list:
+#             virtual_surface.blit(tile[0], tile[1])
 
 
 class Block(pygame.sprite.Sprite):
@@ -274,34 +271,86 @@ rock_group = pygame.sprite.Group()
 rat_group = pygame.sprite.Group()
 item_group = pygame.sprite.Group()
 block_group = pygame.sprite.Group()
+fire_group = pygame.sprite.Group()
 
-# item = Item(800, 650)
-# item_group.add(item)
+item = Item(800, 645)
+item_group.add(item)
+# +55
+grass_block = Block(25, 836, 'grass')
+# grass_block1 = Block(80, 836, 'grass')
+# grass_block2 = Block(135, 836, 'grass')
+# grass_block3 = Block(190, 836, 'grass')
+# grass_block4 = Block(245, 836, 'grass')
+# grass_block5 = Block(300, 836, 'grass')
+# grass_block6 = Block(355, 836, 'grass')
+# grass_block7 = Block(410, 836, 'grass')
+# grass_block8 = Block(465, 836, 'grass')
+# grass_block9 = Block(520, 836, 'grass')
+# grass_block10 = Block(575, 836, 'grass')
+# grass_block11 = Block(630, 836, 'grass')
+# grass_block12 = Block(685, 836, 'grass')
+# grass_block13 = Block(740, 836, 'grass')
+# grass_block14 = Block(795, 836, 'grass')
+# grass_block15 = Block(850, 836, 'grass')
+# grass_block16 = Block(905, 836, 'grass')
 
-grass_block = Block(25, 725, 'grass')
-grass_block1 = Block(80, 725, 'grass')
-ground_block = Block(25, 780, 'ground')
-block_group.add(grass_block)
-block_group.add(grass_block1)
+ground_block = Block(960, 836, 'ground')
+ground_block1 = Block(1015, 836, 'ground')
+ground_block2 = Block(1060, 836, 'ground')
+ground_block3 = Block(1115, 836, 'ground')
+ground_block4 = Block(1070, 836, 'ground')
+
+for i in range(20):
+    x = 25
+    grass_block[i] = Block(x + 55, 836, 'grass')
+    block_group.add(grass_block[i])
+    i += 1
+    x += 55
+
+# block_group.add(grass_block)
+# block_group.add(grass_block1)
+# block_group.add(grass_block2)
+# block_group.add(grass_block3)
+# block_group.add(grass_block4)
+# block_group.add(grass_block5)
+# block_group.add(grass_block6)
+# block_group.add(grass_block7)
+# block_group.add(grass_block8)
+# block_group.add(grass_block9)
+# block_group.add(grass_block10)
+# block_group.add(grass_block11)
+# block_group.add(grass_block12)
+# block_group.add(grass_block13)
+# block_group.add(grass_block14)
+# block_group.add(grass_block15)
+# block_group.add(grass_block16)
+
 block_group.add(ground_block)
+block_group.add(ground_block1)
+block_group.add(ground_block2)
+block_group.add(ground_block3)
+block_group.add(ground_block4)
 
-# angel = Player('angel', 500, 700, 7, 7, 3)
-# rat = Player('rat', 900, 645, 7, 0, 1)
+angel = Player('angel', 500, 700, 7, 7, 3)
+rat = Player('rat', 900, 645, 7, 0, 1)
+rat_group.add(rat)
+fire = Player('fire', 700, 802, 0, 0, 999999)
+block_group.add(fire)
 
-world_data = []
-for row in range(ROWS):
-    r = [-1] * COLS
-    world_data.append(r)
-with open(f'level_data.csv', newline='') as csvfile:
-    reader = csv.reader(csvfile, delimiter=',')
-    for x, row in enumerate(reader):
-        for y, tile in enumerate(row):
-            world_data[x][y] = int(tile)
-world = World()
-angel = world.process_data(world_data)
+# world_data = []
+# for row in range(ROWS):
+#     r = [-1] * COLS
+#     world_data.append(r)
+# with open(f'level_data.csv', newline='') as csvfile:
+#     reader = csv.reader(csvfile, delimiter=',')
+#     for x, row in enumerate(reader):
+#         for y, tile in enumerate(row):
+#             world_data[x][y] = int(tile)
+# world = World()
+# angel = world.process_data(world_data)
 
 run = True
-world = World()
+# world = World()
 
 while run:
 
@@ -309,19 +358,29 @@ while run:
 
     draw_bg()
 
-    world.draw()
+    # world.draw()
 
     draw_text(f'Health: {angel.health}', font, (255, 255, 255), 40, 35)
     draw_text(f'Rocks: {angel.ammo}', font, (255, 255, 255), 40, 70)
 
     angel.update()
     angel.draw()
+
     for rat in rat_group:
         rat.ai()
         rat.update()
         rat.draw()
         if pygame.sprite.spritecollide(angel, rat_group, False):
             if angel.alive and rat.alive:
+                angel.health -= damage
+                angel.lose_health = False
+
+    for fire in fire_group:
+        fire.ai()
+        fire.update()
+        fire.draw()
+        if pygame.sprite.spritecollide(angel, fire_group, False):
+            if angel.alive and fire.alive:
                 angel.health -= damage
                 angel.lose_health = False
 
