@@ -14,10 +14,12 @@ clock = pygame.time.Clock()
 FPS = 60
 
 gravity = 0.75
+scroll_thresh = 200
 damage = 1
 ROWS = 16
 COLS = 150
 TILE_SIZE = HEIGHT // ROWS
+screen_scroll = 0
 TILE_TYPES = 6
 
 virtual_surface = pygame.Surface((WIDTH, HEIGHT))
@@ -33,13 +35,12 @@ shoot = False
 #     img = pygame.transform.scale(img, (TILE_SIZE, TILE_SIZE))
 #     img_list.append(img)
 
-rock_img = pygame.image.load('images/rock/rock.png').convert_alpha()
+rock_img = pygame.image.load('images/rock.png').convert_alpha()
 item_img = pygame.image.load('images/items/item.png').convert_alpha()
 bg = (125, 199, 172)
 red = (255, 0, 0)
 
 font = pygame.font.Font("font/EightBits.ttf", 40)
-
 
 def draw_text(text, font, text_color, x, y):
     img = font.render(text, True, text_color)
@@ -80,6 +81,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.center = (x, y)
         self.width = self.image.get_width()
         self.height = self.image.get_height()
+        self.disable = 0
 
     def update(self):
         # self.update_animation()
@@ -89,6 +91,7 @@ class Player(pygame.sprite.Sprite):
 
     def move(self, moving_left, moving_right):
 
+        screen_scroll = 0
         dx = 0
         dy = 0
 
@@ -142,6 +145,18 @@ class Player(pygame.sprite.Sprite):
 
         self.rect.x += dx
         self.rect.y += dy
+
+        if self.char_type == 'angel':
+            if self.rect.right > WIDTH - scroll_thresh or self.rect.left < scroll_thresh:
+                self.rect.x -= dx
+                screen_scroll = -dx
+                # block_group += screen_scroll
+                # rat_group += screen_scroll
+                # rock_group += screen_scroll
+                # fire_group += screen_scroll
+                # item_group += screen_scroll
+
+        return screen_scroll
 
     def shoot(self):
         if self.shoot_cooldown == 0 and self.ammo > 0:
@@ -273,69 +288,49 @@ item_group = pygame.sprite.Group()
 block_group = pygame.sprite.Group()
 fire_group = pygame.sprite.Group()
 
+# global rock_group
+# global rat_group
+# global item_group
+# global fire_group
+# global block_group
+
 item = Item(800, 645)
 item_group.add(item)
-# +55
-grass_block = Block(25, 836, 'grass')
-# grass_block1 = Block(80, 836, 'grass')
-# grass_block2 = Block(135, 836, 'grass')
-# grass_block3 = Block(190, 836, 'grass')
-# grass_block4 = Block(245, 836, 'grass')
-# grass_block5 = Block(300, 836, 'grass')
-# grass_block6 = Block(355, 836, 'grass')
-# grass_block7 = Block(410, 836, 'grass')
-# grass_block8 = Block(465, 836, 'grass')
-# grass_block9 = Block(520, 836, 'grass')
-# grass_block10 = Block(575, 836, 'grass')
-# grass_block11 = Block(630, 836, 'grass')
-# grass_block12 = Block(685, 836, 'grass')
-# grass_block13 = Block(740, 836, 'grass')
-# grass_block14 = Block(795, 836, 'grass')
-# grass_block15 = Block(850, 836, 'grass')
-# grass_block16 = Block(905, 836, 'grass')
 
-ground_block = Block(960, 836, 'ground')
-ground_block1 = Block(1015, 836, 'ground')
-ground_block2 = Block(1060, 836, 'ground')
-ground_block3 = Block(1115, 836, 'ground')
-ground_block4 = Block(1070, 836, 'ground')
 
-for i in range(20):
-    x = 25
-    grass_block[i] = Block(x + 55, 836, 'grass')
-    block_group.add(grass_block[i])
-    i += 1
-    x += 55
+x1 = 80
+y1 = 836
+x2 = 960
+x3 = 960
 
-# block_group.add(grass_block)
-# block_group.add(grass_block1)
-# block_group.add(grass_block2)
-# block_group.add(grass_block3)
-# block_group.add(grass_block4)
-# block_group.add(grass_block5)
-# block_group.add(grass_block6)
-# block_group.add(grass_block7)
-# block_group.add(grass_block8)
-# block_group.add(grass_block9)
-# block_group.add(grass_block10)
-# block_group.add(grass_block11)
-# block_group.add(grass_block12)
-# block_group.add(grass_block13)
-# block_group.add(grass_block14)
-# block_group.add(grass_block15)
-# block_group.add(grass_block16)
+grass_block = Block(25, 836 - (55 * 5), 'grass')
+block_group.add(grass_block)
 
-block_group.add(ground_block)
-block_group.add(ground_block1)
-block_group.add(ground_block2)
-block_group.add(ground_block3)
-block_group.add(ground_block4)
+for i in range(5):
+    ground_block = Block(25, y1, 'ground')
+    block_group.add(ground_block)
+    y1 -= 55
 
-angel = Player('angel', 500, 700, 7, 7, 3)
+for i in range(16):
+    grass_block = Block(x1, 836, 'grass')
+    block_group.add(grass_block)
+    x1 += 55
+
+for i in range(50):
+    ground_block = Block(x2, 836, 'ground')
+    block_group.add(ground_block)
+    x2 += 55
+
+for i in range(15):
+    grass_block = Block(x3, 836 - 55, 'grass')
+    block_group.add(grass_block)
+    x3 += 55
+
+angel = Player('angel', 300, 700, 7, 7, 3)
 rat = Player('rat', 900, 645, 7, 0, 1)
 rat_group.add(rat)
-fire = Player('fire', 700, 802, 0, 0, 999999)
-block_group.add(fire)
+fire = Player('fire', 400, 802, 0, 0, 999999)
+fire_group.add(fire)
 
 # world_data = []
 # for row in range(ROWS):
@@ -370,19 +365,27 @@ while run:
         rat.ai()
         rat.update()
         rat.draw()
-        if pygame.sprite.spritecollide(angel, rat_group, False):
-            if angel.alive and rat.alive:
-                angel.health -= damage
-                angel.lose_health = False
+        if angel.disable <= 0:
+            if pygame.sprite.spritecollide(angel, rat_group, False):
+                if angel.alive and rat.alive:
+                    angel.health -= damage
+                    angel.lose_health = False
+                    angel.disable = 90
+        else:
+            angel.disable -= 1
 
     for fire in fire_group:
         fire.ai()
         fire.update()
         fire.draw()
-        if pygame.sprite.spritecollide(angel, fire_group, False):
-            if angel.alive and fire.alive:
-                angel.health -= damage
-                angel.lose_health = False
+        if angel.disable <= 0:
+            if pygame.sprite.spritecollide(angel, fire_group, False):
+                if angel.alive:
+                    angel.health -= damage
+                    angel.lose_health = False
+                    angel.disable = 90
+        else:
+            angel.disable -= 1
 
     rock_group.update()
     rock_group.draw(virtual_surface)
@@ -400,7 +403,14 @@ while run:
 
         if shoot:
             angel.shoot()
-        angel.move(moving_left, moving_right)
+        screen_scroll = angel.move(moving_left, moving_right)
+
+    if angel.rect.right > WIDTH - scroll_thresh or angel.rect.left < scroll_thresh:
+        rock_group += screen_scroll
+        item_group += screen_scroll
+        block_group += screen_scroll
+        fire_group += screen_scroll
+        rat_group += screen_scroll
 
     for event in pygame.event.get():
 
