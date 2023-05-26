@@ -1,5 +1,4 @@
 import pygame
-import csv
 pygame.init()
 info = pygame.display.Info()
 
@@ -14,7 +13,7 @@ clock = pygame.time.Clock()
 FPS = 60
 
 gravity = 0.75
-scroll_thresh = 200
+scroll_thresh = 700
 damage = 1
 ROWS = 16
 COLS = 150
@@ -29,15 +28,9 @@ moving_left = False
 moving_right = False
 shoot = False
 
-# img_list = []
-# for x in range(TILE_TYPES):
-#     img = pygame.image.load(f'images/tile/{x}.png')
-#     img = pygame.transform.scale(img, (TILE_SIZE, TILE_SIZE))
-#     img_list.append(img)
-
-rock_img = pygame.image.load('images/rock.png').convert_alpha()
+rock_img = pygame.image.load('images/rock/rock.png').convert_alpha()
 item_img = pygame.image.load('images/items/item.png').convert_alpha()
-bg = (125, 199, 172)
+bg = (177, 231, 248)
 red = (255, 0, 0)
 
 font = pygame.font.Font("font/EightBits.ttf", 40)
@@ -74,17 +67,14 @@ class Player(pygame.sprite.Sprite):
         self.update_time = pygame.time.get_ticks()
         self.move_counter = 0
         self.image = pygame.image.load(f'images/{self.char_type}/Idle/0.png').convert_alpha()
-        # img = pygame.transform.scale(img, (img.get_width(), img.get_height()))
-        # self.animation_list.append(img)
-        # self.image = self.animation_list[self.frame_index]
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.width = self.image.get_width()
         self.height = self.image.get_height()
         self.disable = 0
+        self.scrolling = False
 
     def update(self):
-        # self.update_animation()
         self.check_alive()
         if self.shoot_cooldown > 0:
             self.shoot_cooldown -= 1
@@ -139,22 +129,16 @@ class Player(pygame.sprite.Sprite):
                     dy = ground_block.rect.top - self.rect.bottom
                     self.in_air = False
 
-        # if self.rect.bottom + dy > 700:
-        #     dy = 700 - self.rect.bottom
-        #     self.in_air = False
-
         self.rect.x += dx
         self.rect.y += dy
 
         if self.char_type == 'angel':
             if self.rect.right > WIDTH - scroll_thresh or self.rect.left < scroll_thresh:
+                self.scrolling = True
                 self.rect.x -= dx
                 screen_scroll = -dx
-                # block_group += screen_scroll
-                # rat_group += screen_scroll
-                # rock_group += screen_scroll
-                # fire_group += screen_scroll
-                # item_group += screen_scroll
+            else:
+                self.scrolling = False
 
         return screen_scroll
 
@@ -198,40 +182,9 @@ class Player(pygame.sprite.Sprite):
             self.move(ai_moving_left, ai_moving_right)
             self.move_counter += 1
 
-            if self.move_counter > TILE_SIZE:
+            if self.move_counter > TILE_SIZE / 4:
                 self.direction *= -1
                 self.move_counter *= -1
-
-
-# class World():
-#     def __init__(self):
-#         self.obstacle_list = []
-#
-#     def process_data(self, data):
-#         for y, row in enumerate(data):
-#             for x, tile in enumerate(row):
-#                 if tile >= 0:
-#                     img = img_list[tile]
-#                     img_rect = img.get_rect()
-#                     img_rect.x = x * TILE_SIZE
-#                     img_rect.y = y * TILE_SIZE
-#                     tile_data = (img, img_rect)
-#                     if tile >= 2 and tile <= 3:
-#                         self.obstacle_list.append(tile_data)
-#                     elif tile == 0:
-#                         angel = Player('angel', x * TILE_SIZE, y * TILE_SIZE, 7, 7, 3)
-#                     elif tile == 1:
-#                         rat = Player('rat', x * TILE_SIZE, y * TILE_SIZE, 7, 0, 1)
-#                         rat_group.add(rat)
-#                     elif tile == 5:
-#                         item = Item(x * TILE_SIZE, y * TILE_SIZE)
-#                         item_group.add(item)
-#
-#         return angel
-#
-#     def draw(self):
-#         for tile in self.obstacle_list:
-#             virtual_surface.blit(tile[0], tile[1])
 
 
 class Block(pygame.sprite.Sprite):
@@ -249,7 +202,7 @@ class Item(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = item_img
         self.rect = self.image.get_rect()
-        self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
+        self.rect.midtop = (x + TILE_SIZE // 4, y + (TILE_SIZE - self.image.get_height()))
 
     def update(self):
         if pygame.sprite.collide_rect(self, angel):
@@ -288,35 +241,55 @@ item_group = pygame.sprite.Group()
 block_group = pygame.sprite.Group()
 fire_group = pygame.sprite.Group()
 
-# global rock_group
-# global rat_group
-# global item_group
-# global fire_group
-# global block_group
-
-item = Item(800, 645)
+item = Item(3215 - (55 * 9) + 15, 671 - (55 * 6) + 30)
 item_group.add(item)
 
 
 x1 = 80
-y1 = 836
 x2 = 960
 x3 = 960
+x4 = -580
+x5 = -580
+x6 = -580
+x7 = -580
+x8 = -580
+x9 = 1785
+x10 = 1840 - (55 * 7)
+x11 = 1785
+x12 = 2500 + (55 * 10)
+x13 = 3380
 
-grass_block = Block(25, 836 - (55 * 5), 'grass')
-block_group.add(grass_block)
-
-for i in range(5):
-    ground_block = Block(25, y1, 'ground')
+for i in range(13):
+    ground_block = Block(x4, 836, 'ground')
     block_group.add(ground_block)
-    y1 -= 55
+    x4 += 55
+
+for i in range(12):
+    ground_block = Block(x5, 781, 'ground')
+    block_group.add(ground_block)
+    x5 += 55
+
+for i in range(12):
+    ground_block = Block(x6, 726, 'ground')
+    block_group.add(ground_block)
+    x6 += 55
+
+for i in range(12):
+    ground_block = Block(x7, 671, 'ground')
+    block_group.add(ground_block)
+    x7 += 55
+
+for i in range(12):
+    grass_block = Block(x8, 671, 'grass')
+    block_group.add(grass_block)
+    x8 += 55
 
 for i in range(16):
     grass_block = Block(x1, 836, 'grass')
     block_group.add(grass_block)
     x1 += 55
 
-for i in range(50):
+for i in range(85):
     ground_block = Block(x2, 836, 'ground')
     block_group.add(ground_block)
     x2 += 55
@@ -326,26 +299,128 @@ for i in range(15):
     block_group.add(grass_block)
     x3 += 55
 
-angel = Player('angel', 300, 700, 7, 7, 3)
-rat = Player('rat', 900, 645, 7, 0, 1)
-rat_group.add(rat)
-fire = Player('fire', 400, 802, 0, 0, 999999)
-fire_group.add(fire)
+for i in range(29):
+    ground_block = Block(x3, 836 - 55, 'ground')
+    block_group.add(ground_block)
+    x3 += 55
 
-# world_data = []
-# for row in range(ROWS):
-#     r = [-1] * COLS
-#     world_data.append(r)
-# with open(f'level_data.csv', newline='') as csvfile:
-#     reader = csv.reader(csvfile, delimiter=',')
-#     for x, row in enumerate(reader):
-#         for y, tile in enumerate(row):
-#             world_data[x][y] = int(tile)
-# world = World()
-# angel = world.process_data(world_data)
+for i in range(8):
+    fire3 = Player('fire', x13 - (55 * 7), 836 - 55, 0, 0, 999999)
+    fire_group.add(fire3)
+    x13 -= 110
+
+for i in range(2):
+    grass_block = Block(x9, 726, 'grass')
+    block_group.add(grass_block)
+    x9 += 55
+
+for i in range(6):
+    ground_block = Block(x9, 726, 'ground')
+    block_group.add(ground_block)
+    x9 += 55
+
+for i in range(6):
+    ground_block = Block(x11 + 110, 671, 'ground')
+    block_group.add(ground_block)
+    x11 += 55
+
+for i in range(4):
+    grass_block = Block(x10, 726 - (55 * 2), 'grass')
+    block_group.add(grass_block)
+    x10 += 55
+
+for i in range(6):
+    ground_block = Block(x11 - (55 * 4), 671 - 55, 'ground')
+    block_group.add(ground_block)
+    x11 += 55
+
+for i in range(6):
+    grass_block = Block(x11 - (55 * 10), 671 - (55 * 2), 'grass')
+    block_group.add(grass_block)
+    x11 += 55
+
+for i in range(4):
+    grass_block = Block(x11 - (55 * 8), 671 - (55 * 3), 'grass')
+    block_group.add(grass_block)
+    x11 += 55
+
+for i in range(4):
+    grass_block = Block(x11 - (55 * 6), 671 - (55 * 4), 'grass')
+    block_group.add(grass_block)
+    x11 += 55
+
+for i in range(6):
+    ground_block = Block(x11 - (55 * 3), 726, 'ground')
+    block_group.add(ground_block)
+    x11 += 55
+
+for i in range(6):
+    ground_block = Block(x12, 726 - 55, 'ground')
+    block_group.add(ground_block)
+    x12 += 55
+
+for i in range(6):
+    ground_block = Block(x12 - (55 * 6), 726 - (55 * 2), 'ground')
+    block_group.add(ground_block)
+    x12 += 55
+
+for i in range(6):
+    ground_block = Block(x12 - (55 * 12), 726 - (55 * 3), 'ground')
+    block_group.add(ground_block)
+    x12 += 55
+
+for i in range(6):
+    grass_block = Block(x12 - (55 * 18), 726 - (55 * 4), 'grass')
+    block_group.add(grass_block)
+    x12 += 55
+
+fire2 = Player('fire', x12 - (55 * 19), 726 - (55 * 4), 0, 0, 999999)
+fire_group.add(fire2)
+
+for i in range(7):
+    grass_block = Block(x12 - (55 * 16), 726 - (55 * 6), 'grass')
+    block_group.add(grass_block)
+    x12 += 55
+
+rat = Player('rat', x12 - (55 * 20), 726 - (55 * 6), 5, 0, 1)
+rat_group.add(rat)
+
+for i in range(30):
+    grass_block = Block(x12 - (55 * 14), 726 - (55 * 4), 'grass')
+    block_group.add(grass_block)
+    x12 += 55
+
+for i in range(30):
+    ground_block = Block(x12 - (55 * 44), 726 - (55 * 3), 'ground')
+    block_group.add(ground_block)
+    x12 += 55
+
+for i in range(30):
+    ground_block = Block(x12 - (55 * 74), 726 - (55 * 2), 'ground')
+    block_group.add(ground_block)
+    x12 += 55
+
+for i in range(30):
+    ground_block = Block(x12 - (55 * 104), 726 - 55, 'ground')
+    block_group.add(ground_block)
+    x12 += 55
+
+for i in range(30):
+    ground_block = Block(x12 - (55 * 134), 726, 'ground')
+    block_group.add(ground_block)
+    x12 += 55
+
+for i in range(30):
+    ground_block = Block(x12 - (55 * 164), 726 + 55, 'ground')
+    block_group.add(ground_block)
+    x12 += 55
+
+
+angel = Player('angel', 700, 700, 7, 0, 3)
+fire1 = Player('fire', 1785 + (55 * 4), 671 - (55 * 2), 0, 0, 999999)
+fire_group.add(fire1)
 
 run = True
-# world = World()
 
 while run:
 
@@ -353,10 +428,8 @@ while run:
 
     draw_bg()
 
-    # world.draw()
-
-    draw_text(f'Health: {angel.health}', font, (255, 255, 255), 40, 35)
-    draw_text(f'Rocks: {angel.ammo}', font, (255, 255, 255), 40, 70)
+    draw_text(f'Health: {angel.health}', font, (0, 60, 154), 40, 35)
+    draw_text(f'Rocks: {angel.ammo}', font, (0, 60, 154), 40, 70)
 
     angel.update()
     angel.draw()
@@ -405,12 +478,16 @@ while run:
             angel.shoot()
         screen_scroll = angel.move(moving_left, moving_right)
 
-    if angel.rect.right > WIDTH - scroll_thresh or angel.rect.left < scroll_thresh:
-        rock_group += screen_scroll
-        item_group += screen_scroll
-        block_group += screen_scroll
-        fire_group += screen_scroll
-        rat_group += screen_scroll
+    for element in rock_group:
+        element.rect.x += screen_scroll
+    for element in item_group:
+        element.rect.x += screen_scroll
+    for element in block_group:
+        element.rect.x += screen_scroll
+    for element in fire_group:
+        element.rect.x += screen_scroll
+    for element in rat_group:
+        element.rect.x += screen_scroll
 
     for event in pygame.event.get():
 
